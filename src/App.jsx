@@ -1,34 +1,36 @@
-import React, { useEffect, useState, useLayoutEffect, useRef } from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 import Software from "./pages/Software";
-import Home from "./pages/Home"; // NEW - your full homepage moved to its own file
+import Home from "./pages/Home";
+import BecomeTaxMogul from "./pages/BecomeTaxMogul";
+import FileNow from "./pages/FileNow";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const getInitialTheme = () => {
-  if (typeof window === "undefined") return "light";
-
-  const stored = localStorage.getItem("tm-theme");
-  if (stored === "light" || stored === "dark") return stored;
-
-  return window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "dark"
-    : "light";
-};
-
 export default function App() {
-  const [theme, setTheme] = useState(getInitialTheme);
 
+  // AUTO THEME — FOLLOW SYSTEM ONLY
   useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
-    window.localStorage.setItem("tm-theme", theme);
-  }, [theme]);
+    const systemDark = window.matchMedia("(prefers-color-scheme: dark)");
 
-  const toggleTheme = () =>
-    setTheme((prev) => (prev === "light" ? "dark" : "light"));
+    const applyTheme = (e) => {
+      document.documentElement.setAttribute("data-theme", e.matches ? "dark" : "light");
+    };
+
+    // Set initial system theme
+    applyTheme(systemDark);
+
+    // Listen for system theme changes
+    systemDark.addEventListener("change", applyTheme);
+
+    return () => {
+      systemDark.removeEventListener("change", applyTheme);
+    };
+  }, []);
+
 
   return (
     <BrowserRouter>
@@ -45,21 +47,20 @@ export default function App() {
 
           <nav className="tm-nav">
             <Link to="/">Home</Link>
-            <a href="/#virtual">Virtual & In-Person</a>
-            <a href="/#refund-calculator">Refund calculator</a>
-            <a href="/#become-tax-pro">Become a Tax Pro</a>
+            <Link to="/file-now">File Now</Link>
+            <a 
+              href="https://app.thetaxmoguls.com/" 
+              target="_blank" 
+              rel="noreferrer"
+            >
+              Refund Calculator
+            </a>
+            <Link to="/become-a-tax-mogul">Become a Tax Pro</Link>
             <Link to="/software">Tax Software</Link>
           </nav>
 
           <div className="tm-header-actions">
-            <button
-              type="button"
-              className="tm-theme-toggle"
-              onClick={toggleTheme}
-              aria-label="Toggle dark or light mode"
-            >
-              {theme === "light" ? "🌙" : "☀️"}
-            </button>
+            {/* REMOVED THE THEME TOGGLE */}
 
             <a
               href="https://cal.com/jordan-c-cmbf7z/mogul-consultation"
@@ -76,7 +77,9 @@ export default function App() {
       {/* ROUTES */}
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/file-now" element={<FileNow />} />
         <Route path="/software" element={<Software />} />
+        <Route path="/become-a-tax-mogul" element={<BecomeTaxMogul />} />
       </Routes>
 
       {/* FOOTER */}
@@ -105,9 +108,9 @@ export default function App() {
             <div>
               <h4>Resources</h4>
               <ul>
-                <li><a href="#">Refund Tracker</a></li>
-                <li><a href="#">MogulVault</a></li>
-                <li><a href="#">Document Upload</a></li>
+                <li><a href="https://sa.www4.irs.gov/wmr/" target="_blank" rel="noreferrer">Refund Tracker</a></li>
+                <li><a href="#">Credit Services</a></li>
+                <li><Link to="/file-now">File Now / App</Link></li>
                 <li><a href="#">Payment Portal</a></li>
               </ul>
             </div>
